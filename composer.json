@@ -1,0 +1,19 @@
+{
+    "name": "hanna/tortellini-code",
+    "authors": [
+        {
+            "name": "Hanna",
+            "email": "hanna@hoodin.com"
+        }
+    ],
+    "require": {},
+
+    "autoload": {
+        "psr-4": {
+            "MyTest\\": "src/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16"
+    }
+}

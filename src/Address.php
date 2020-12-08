@@ -9,9 +9,9 @@ class Address implements JsonSerializable
     private string $streetAddress;
     private string $city;
     private string $state;
-    private int $postalCode;
+    private string $postalCode;
 
-    public function __construct(string $streetAddress, string $city, string $state, int $postalCode)
+    public function __construct(string $streetAddress, string $city, string $state, string $postalCode)
     {
         $this->streetAddress = $streetAddress;
         $this->city = $city;
@@ -49,7 +49,7 @@ class Address implements JsonSerializable
         $this->state = $state;
     }
 
-    public function getPostalCode(): int
+    public function getPostalCode(): string
     {
         return $this-> postalCode;
     }

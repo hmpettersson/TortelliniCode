@@ -20,7 +20,7 @@ class NumbersCollection
 
     public function deleteNumber(PhoneNumber $phoneNumber)
     {
-        $index = array_search($phoneNumber->number, $this->numbers);
+        $index = array_search($phoneNumber->getNumber(), $this->numbers);
         if ($index != null) {
             unset($this->numbers[$index]);
         }

@@ -69,7 +69,7 @@ class Person implements JsonSerializable
 
     public function setAge(int $age)
     {
-        $this->gender = $age;
+        $this->age = $age;
     }
 
     public function getAddress(): Address

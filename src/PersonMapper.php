@@ -65,7 +65,9 @@ class PersonMapper extends ArrayObject
             $connection->close();
         } catch (PDOException $e) {
             echo $e->getMessage();
-            $connection->close();
+            if (isset($connection)) {
+                $connection->close();
+            }
         }
     }
 
@@ -88,17 +90,17 @@ class PersonMapper extends ArrayObject
 
                 $sql2 = $dB->prepare("SELECT * FROM Phone_Number WHERE person_id = :personId");
                 $sql2->bindParam(':personId', $personId);
-                $sql->setFetchMode(PDO::FETCH_OBJ);
+                $sql2->setFetchMode(PDO::FETCH_OBJ);// Ändrat denna från sql till sql2 ifall det blir följdfel
                 $sql2->execute();
                 $numberResults = $sql2->fetchAll();
-
+                //vardumpa numberResults för att ev ändra foreachens entity getType etc
                 $noCollection = new NumbersCollection();
                 
                 foreach ($numberResults as $entity) {
                     $phoneNo = new PhoneNumber();
-                    $phoneNo->setType($entity['type']);
-                    $phoneNo->setNumber($entity['number']);
-                    $phoneNo->setPersonId($entity['person_id']);
+                    $phoneNo->setType($entity->type);
+                    $phoneNo->setNumber($entity->number);
+                    $phoneNo->setPersonId($entity->person_id);
                     $noCollection->addPhoneNumber($phoneNo);
                 }
 
@@ -116,15 +118,74 @@ class PersonMapper extends ArrayObject
                     $address,
                     $noCollection
                 );
-                $person->setId($personId);
+                $person->setId($result2->id);
                 array_push($resultArray, $person);
                 $connection->close();
             }
             return $resultArray;
         } catch (PDOException $e) {
             echo $e->getMessage();
-            $connection->close();
+            if (isset($connection)) {
+                $connection->close();
+            }
             return $resultArray;
+        }
+    }
+    public function getPersonById(string $id): ?Person
+    {
+        try {
+            $connection = new DbConnection();
+            $dB = $connection->Open();
+            $idAsInt = (int)$id;
+            $sql = $dB->prepare("SELECT * FROM Person WHERE id = :personId");
+            $sql->bindParam((':personId'), $idAsInt);
+            $sql->setFetchMode(PDO::FETCH_OBJ);
+            $sql->execute();
+            $result = $sql->fetchAll();
+
+            if (empty($result)) {
+                return null;
+            }
+
+            $sql2 = $dB->prepare("SELECT * FROM Phone_Number WHERE person_id = :personId");
+            $sql2->bindParam(':personId', $idAsInt);
+            $sql2->setFetchMode(PDO::FETCH_OBJ);
+            $sql2->execute();
+            $numberResults = $sql2->fetchAll();
+
+            $noCollection = new NumbersCollection();
+                
+            foreach ($numberResults as $entity) {
+                $phoneNo = new PhoneNumber();
+                $phoneNo->setType($entity->type);
+                $phoneNo->setNumber($entity->number);
+                $phoneNo->setPersonId($entity->person_id);
+                $noCollection->addPhoneNumber($phoneNo);
+            }
+
+            $address = new Address(
+                $result[0]->street_address,
+                $result[0]->city,
+                $result[0]->state,
+                $result[0]->postal_code
+            );
+            $person = new Person(
+                $result[0]->first_name,
+                $result[0]->last_name,
+                $result[0]->gender,
+                $result[0]->age,
+                $address,
+                $noCollection
+            );
+            $person->setId($result[0]->id);
+            $connection->close();
+            return $person;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+            if (isset($connection)) {
+                $connection->close();
+            }
+            return null;
         }
     }
 }
